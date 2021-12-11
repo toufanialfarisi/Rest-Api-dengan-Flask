@@ -1,2 +1,4 @@
-myenviro/
+myenv/
 .vscode/
+__pychache__/
+app.cpython-39*
