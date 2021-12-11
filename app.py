@@ -1,40 +1,98 @@
-# import library
+# inisialisasi library
 from flask import Flask, request
-from flask_restful import Resource, Api 
-from flask_cors import CORS 
+from flask_restful import Resource, Api
+from flask_cors import CORS
 
-# Inisiasi object flask 
+# import library flask sqlalchemy
+from flask_sqlalchemy import SQLAlchemy
+import os
+
+# inisialisasi object library
 app = Flask(__name__)
 
-# inisiasi object flask_restful 
+# inisiasai objek flask restful
 api = Api(app)
 
-# inisiasi object flask_cors 
+# inisiasi object flask cors
 CORS(app)
 
-# inisiasi variabel kosong bertipe dictionaru 
-identitas = {} # variable global  , dictionary = json 
+# inisialisasi object flask sqlalchemy
+db = SQLAlchemy(app)
+
+# mongkonfigurasi dulu database
+basedir = os.path.dirname(os.path.abspath(__file__))
+database = "sqlite:///" + os.path.join(basedir, "db.sqlite")
+app.config["SQLALCHEMY_DATABASE_URI"] = database
+
+# Membuat database model
+class ModelDatabase(db.Model):
+    # membuat field/kolom
+    id = db.Column(db.Integer, primary_key=True)
+    nama = db.Column(db.String(100))
+    umur = db.Column(db.Integer)
+    alamat = db.Column(db.TEXT) # field tambahan
+
+    # membuat mothode untuk menyimpan data agar lebih simple
+    def save(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return True
+        except:
+            return False
 
 
-# membuat class Resource
+# mencreate database
+db.create_all()
+
+# inisiasi variabel kosong bertipe dictionary
+identitas = {}
+
+# Membuat class untuk restfull 
 class ContohResource(Resource):
-    # metode get dan post 
     def get(self):
-        # response = {"msg":"Hallo dunia, ini app restful pertamaku"}
-        return identitas 
+        # menampilkan data dari database sqlite
+        query = ModelDatabase.query.all()
+
+        # melakukan iterasi pada modelDatabase dengan teknik 
+        output = [
+            {
+                "nama":data.nama, 
+                "umur":data.umur, 
+                "alamat":data.alamat
+            } 
+            for data in query
+        ]
+
+        response = {
+            "code" : 200, 
+            "msg"  : "Query data sukses",
+            "data" : output
+        }
+
+        return response, 200
 
     def post(self):
-        nama = request.form["nama"] 
-        umur = request.form["umur"]
-        identitas["nama"] = nama 
-        identitas["umur"] = umur 
-        response = {"msg" : "Sukses bosku"}
-        return response
+        dataNama = request.form["nama"]
+        dataUmur = request.form["umur"]
+        dataAlamat = request.form["alamat"]
 
-# setup resourcenya 
+        # masukan data ke dalam database model
+        model = ModelDatabase(nama=dataNama, umur=dataUmur, alamat=dataAlamat)
+        model.save()
+         
+        response = {
+            "msg" : "Data berhasil dimasukan",
+            "code": 200
+        }
+
+        return response, 200
+
+
+# inisialisasi url / api 
 api.add_resource(ContohResource, "/api", methods=["GET", "POST"])
 
 if __name__ == "__main__":
     app.run(debug=True, port=5005)
-
+    
 
