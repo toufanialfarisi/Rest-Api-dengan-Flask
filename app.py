@@ -149,6 +149,7 @@ class UpdateResource(Resource):
 
 
 # inisialisasi url / api 
+# testing
 api.add_resource(ContohResource, "/api", methods=["GET", "POST", "DELETE"])
 api.add_resource(UpdateResource, "/api/<id>", methods=["PUT", "DELETE"])
 
