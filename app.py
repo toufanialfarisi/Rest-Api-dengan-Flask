@@ -57,6 +57,7 @@ class ContohResource(Resource):
         # melakukan iterasi pada modelDatabase dengan teknik 
         output = [
             {
+                "id":data.id,
                 "nama":data.nama, 
                 "umur":data.umur, 
                 "alamat":data.alamat
@@ -88,9 +89,68 @@ class ContohResource(Resource):
 
         return response, 200
 
+    # delete all / hapus semua datanya
+    def delete(self):
+        # query all data
+        query = ModelDatabase.query.all() # list / kumpulan data => iterasi/looping
+
+        # looping
+        for data in query:
+            db.session.delete(data)
+            db.session.commit()
+
+        response = {
+            "msg":"Semua data berhasil dihapus",
+            "code":200
+        }
+
+        return response, 200
+        
+
+
+# membuat class baru untuk mengedit / menghapus data
+class UpdateResource(Resource):
+    def put(self, id):
+        # konsumsi id itu untuk query di model databasenya
+        # pilih data yang ingin diedit berdasarkan id yang dimasukan
+        query = ModelDatabase.query.get(id)
+
+        # form untuk pegeditan data
+        editNama = request.form["nama"]
+        editUmur = request.form["umur"]
+        editAlamat = request.form["alamat"]
+
+        # mereplace nilai yang ada di setiap field/kolom
+        query.nama = editNama
+        query.umur = editUmur
+        query.alamat = editAlamat
+        db.session.commit()
+
+        response = {
+            "msg" : "edit data berhasil",
+            "code": 200
+        }
+
+        return response, 200
+
+    # delete by id, bukan delete all
+    def delete(self, id):
+        queryData = ModelDatabase.query.get(id)
+
+        # panggil methode untuk delete data by id
+        db.session.delete(queryData)
+        db.session.commit()
+
+        response = {
+            "msg" : "delete data berhasil",
+            "code" : 200
+        }
+        return response, 200
+
 
 # inisialisasi url / api 
-api.add_resource(ContohResource, "/api", methods=["GET", "POST"])
+api.add_resource(ContohResource, "/api", methods=["GET", "POST", "DELETE"])
+api.add_resource(UpdateResource, "/api/<id>", methods=["PUT", "DELETE"])
 
 if __name__ == "__main__":
     app.run(debug=True, port=5005)
