@@ -1,6 +1,6 @@
 ## Dasar Authentication dengan Json Web Token di flask backend
 
-'''
+```
 from datetime import datetime
 from flask import Flask, jsonify, request, make_response
 import jwt
@@ -47,10 +47,11 @@ auth = request.authorization
 
 if **name** == "**main**":
 app.run(debug=True)
-'''
+```
 
 #2 DASAR AUTHENTIKASI DENGAN FLASK RESTFUL DAN JWT
-'''
+
+```
 from datetime import datetime
 from flask import Flask, json, jsonify, request, make_response
 import jwt
@@ -100,4 +101,4 @@ api.add_resource(Login, '/api/login', methods=['GET', 'POST'])
 
 if **name** == "**main**":
 app.run(debug=True)
-'''
+```
